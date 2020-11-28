@@ -159,13 +159,27 @@ public class ClientDetailRepo {
 				parsedObject = (JSONObject) parser.parse(result);
 				clientDetails.setClientId(methodExtractObj(parsedObject,"client_id"));
 				clientDetails.setClientSecret(methodExtractObj(parsedObject,"userpassword"));
-				clientDetails.setClientName(methodExtractObj(parsedObject,"com.forgerock.openam.oauth2provider.clientName"));		
+				clientDetails.setClientName(methodExtractObj(parsedObject,"com.forgerock.openam.oauth2provider.clientName"));
+				clientDetails.setGrantType(methodExtractObjArr(parsedObject,"com.forgerock.openam.oauth2provider.responseTypes"));
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
+	}
+
+	private String methodExtractObjArr(JSONObject parsedObject, String value) {
+		// TODO Auto-generated method stub
+		StringBuilder grantTypes = new StringBuilder();
+		JSONArray aobj = (JSONArray)parsedObject.get(value);
+		for(Object o: aobj){
+		    //if ( o instanceof JSONObject ) {
+		    	grantTypes.append(o);
+		    	grantTypes.append(",");
+		    //}
+		}
+		return grantTypes.toString();
 	}
 
 	private String methodExtractObj(JSONObject parsedObject,String value) {
