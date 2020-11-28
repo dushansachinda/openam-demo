@@ -113,9 +113,10 @@ public class OpenAMOAuthClient extends AbstractKeyManager {
 	private static final Log log = LogFactory.getLog(OpenAMOAuthClient.class);
 	// private Intero introspectClient;
 	private IntrospectionClient introspectionClient;
-	static Map<String, ClientDetails> clientDetailsMapping; //new HashMap<String, ClientDetails>();
+	//static Map<String, ClientDetails> clientDetailsMapping; //new HashMap<String, ClientDetails>();
+	private static ClientDetailRepo clientDetailRepo;
 	static {
-		clientDetailsMapping = ClientDetailRepo.getInstance().clientDetailsMapping;
+		clientDetailRepo = ClientDetailRepo.getInstance();;
 	}
 
 	/**
@@ -208,7 +209,8 @@ public class OpenAMOAuthClient extends AbstractKeyManager {
 	                clientDetails.setGrantType(grantType);
 	                oAuthApplicationInfo.setCallBackURL(callbackURL);
 	                clientDetails.setRedirectURL(callbackURL);
-	                clientDetailsMapping.put(clientId, clientDetails);
+	                //clientDetailsMapping.put(clientId, clientDetails);
+	                clientDetailRepo.createApplication(clientId, jsonPayload);
 	                return oAuthApplicationInfo;
 	            } else {
 	                handleException("Some thing wrong here while registering the new client "
@@ -284,9 +286,10 @@ public class OpenAMOAuthClient extends AbstractKeyManager {
 	            }
 	            if (responseCode == HttpStatus.SC_OK ||
 	                    responseCode == HttpStatus.SC_NO_CONTENT) {
-	                clientDetailsMapping.remove(clientId);
+	            	clientDetailRepo.deleteApplication(clientId);
+	                //clientDetailsMapping.remove(clientId);
 	                log.info("OAuth Client for consumer Id " + clientId + " has been successfully deleted");
-	                clientDetailsMapping.remove(clientId);
+	                //clientDetailsMapping.remove(clientId);
 	            } else {
 	            	log.error("Problem occurred while deleting client for Consumer Key." +clientId);
 	                //handleException("Problem occurred while deleting client for Consumer Key " + clientId);
@@ -314,7 +317,7 @@ public class OpenAMOAuthClient extends AbstractKeyManager {
 
 		 OAuthApplicationInfo oAuthApplicationInfo = new OAuthApplicationInfo();
 	        try {
-	            ClientDetails clientDetails = clientDetailsMapping.get(clientId);
+	            ClientDetails clientDetails = clientDetailRepo.getClientApplication(clientId);
 
 	            if (clientDetails == null || clientDetails.getClientId() == null) {
 	                return null;
